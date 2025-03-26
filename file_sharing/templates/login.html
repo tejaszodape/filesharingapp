@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Page with OTP</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Global Styles */
+        body {
+    margin: 0;
+    height: 100vh;
+    font-family: 'Poppins', sans-serif;
+    color: #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+
+    /* Animated Gradient Background */
+    background: linear-gradient(135deg, #a6e0fb, #006177);
+    background-size: 400% 400%;
+    animation: gradientAnimation 10s ease infinite;
+  }
+
+  @keyframes gradientAnimation {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+
+        /* Section Animation */
+        section {
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Card Styles */
+        .card {
+            border-radius: 1rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: scale(1.02);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Card Body */
+        .card-body {
+            padding: 40px;
+            position: relative;
+            animation: slideIn 1s ease-in-out;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        /* Form Fields */
+        .form-control {
+            border-radius: 8px;
+            padding: 15px;
+            border: 2px solid #ddd;
+            transition: border-color 0.3s ease, transform 0.2s ease;
+        }
+        .form-control:focus {
+            border-color: #ff6219;
+            transform: scale(1.02);
+            box-shadow: 0 0 8px rgba(255, 98, 25, 0.3);
+            outline: none;
+        }
+
+        /* Button Styles */
+        button {
+            cursor: pointer;
+            background: #3579bd !important;
+            border: none !important;
+            border-radius: 8px;
+            padding: 15px;
+            font-size: 1rem;
+            font-weight: bold;
+            width: 100%;
+            color: white;
+            transition: background 0.3s ease, transform 0.2s ease;
+        }
+        button:hover {
+            background: #004284 !important;
+            transform: scale(1.02);
+        }
+        button:disabled {
+            background: #bdc3c7 !important; /* Grayed-out button when disabled */
+            cursor: not-allowed;
+        }
+
+        /* Text Animations */
+        .h2.fw-bold.mb-0 {
+            animation: fadeInText 1.5s ease-in-out;
+        }
+        @keyframes fadeInText {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h5.fw-normal {
+            animation: fadeInText 2s ease-in-out;
+        }
+
+        /* Left Image */
+        .col-md-6.col-lg-5.d-none.d-md-block img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            animation: zoomIn 1.5s ease-in-out;
+        }
+        @keyframes zoomIn {
+            from { transform: scale(1.1); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        /* Links */
+        a.small.text-muted {
+            color: #ff6219 !important;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        a.small.text-muted:hover {
+            color: #e65716 !important;
+        }
+
+        p.mb-0.mt-3 a {
+            color: #ff6219;
+            font-weight: bold;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        p.mb-0.mt-3 a:hover {
+            color: #e65716;
+        }
+    </style>
+</head>
+<body>
+
+<section class="vh-100">
+    <div class="container py-5 h-100">
+        <div class="row d-flex justify-content-center align-items-center h-100">
+            <div class="col col-xl-10">
+                <div class="card">
+                    <div class="row g-0">
+                        <!-- Left Image -->
+                        <div class="col-md-6 col-lg-5 d-none d-md-block">
+                            <img src="https://i.pinimg.com/736x/60/47/db/6047db28264b6cedeba3d9324622743e.jpg"
+                                 alt="login form" class="img-fluid" style="border-radius: 1rem 0 0 1rem;">
+                        </div>
+
+                        <!-- Right Form -->
+                        <div class="col-md-6 col-lg-7 d-flex align-items-center">
+                            <div class="card-body p-4 p-lg-5 text-black">
+
+                                <form id="loginForm">
+                                    <div class="d-flex align-items-center mb-3 pb-1">
+                                        <i class="fas fa-lock fa-2x me-3" style="color: #ff6219;"></i>
+                                        <span class="h2 fw-bold mb-0">Welcome back 👋</span>
+                                    </div>
+
+                                    <h5 class="fw-normal mb-3 pb-3">Sign into your account</h5>
+
+                                    <!-- Username -->
+                                    <div class="form-group" id="usernameField">
+                                        <label for="username">Username</label>
+                                        <input type="text" class="form-control" id="username" required>
+                                    </div>
+
+                                    <!-- Password -->
+                                    <div class="form-group" id="passwordField">
+                                        <label for="password">Password</label>
+                                        <input type="password" class="form-control" id="password" required>
+                                    </div>
+
+                                    <!-- OTP Field (Hidden Initially) -->
+                                    {% csrf_token %}  
+                                    <div class="form-group" id="otpField" style="display: none;">
+                                        <label for="otp">Enter OTP</label>
+                                        <input type="text" class="form-control" id="otp" required>
+                                    </div>
+
+                                    <!-- Button -->
+                                    <button type="button" id="loginBtn" onclick="handleLogin()">Login</button>
+
+                                    <a class="small text-muted mt-3 d-block" href="#">Forgot password?</a>
+
+                                    <p class="mb-0 mt-3">
+                                        Don't have an account? <a href="/register">Register here</a>
+                                    </p>
+                                </form>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    let generatedOTP;
+
+    function handleLogin() {
+        const loginBtn = document.getElementById("loginBtn");
+
+        // Disable the button to prevent multiple clicks
+        loginBtn.disabled = true;
+        loginBtn.innerText = "Sending OTP...";
+
+        // Show an intermediate alert
+        alert("OTP is being sent to your email...");
+
+        // Call the sendOTP function
+        sendOTP().finally(() => {
+            // Re-enable the button after the process is complete
+            loginBtn.disabled = false;
+        });
+    }
+
+    function sendOTP() {
+        let username = document.getElementById("username").value;
+        let password = document.getElementById("password").value;
+        let csrfToken = getCSRFToken();  // Get CSRF token
+
+        if (!username || !password) {
+            alert("Please enter both username and password.");
+            return Promise.reject(); // Reject the promise to stop further execution
+        }
+
+        return fetch("/send-otp/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "X-CSRFToken": csrfToken,  // Include CSRF token in headers
+            },
+            body: `username=${username}&password=${password}`
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("HTTP status " + response.status);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                alert("OTP sent successfully!");
+                document.getElementById("otpField").style.display = "block";
+                document.getElementById("loginBtn").innerText = "Verify OTP";
+                document.getElementById("loginBtn").setAttribute("onclick", "verifyOTP()");
+            } else {
+                alert(data.message);
+            }
+        })
+        .catch(error => {
+            console.error("Error:", error);
+            alert("An error occurred while sending the OTP.");
+        });
+    }
+
+    function verifyOTP() {
+        let otp = document.getElementById("otp").value;
+        let csrfToken = getCSRFToken();
+
+        fetch("/verify-otp/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "X-CSRFToken": csrfToken,
+            },
+            body: `otp=${otp}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert("Login successful!");
+                window.location.href = "/home"; // Redirect to home page
+            } else {
+                alert("Invalid OTP.");
+            }
+        })
+        .catch(error => console.error("Error:", error));
+    }
+
+    function getCSRFToken() {
+        let csrfTokenInput = document.querySelector('input[name="csrfmiddlewaretoken"]');
+        return csrfTokenInput ? csrfTokenInput.value : "";
+    }
+</script>
+
+</body>
+</html>

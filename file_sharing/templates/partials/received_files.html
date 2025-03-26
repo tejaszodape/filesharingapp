@@ -1,0 +1,26 @@
+{% if shared_files %}
+  <table>
+    <thead>
+      <tr>
+        <th><i class="fas fa-user"></i> Sender</th>
+        <th><i class="fas fa-file"></i> Filename</th>
+        <th><i class="fas fa-calendar-alt"></i> Shared On</th>
+        <th><i class="fas fa-download"></i> Download</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for file in shared_files %}
+        <tr>
+          <td>{{ file.sender.username }}</td>
+          <td>{{ file.original_filename }}</td>
+          <td>{{ file.created_at|date:"Y-m-d H:i" }}</td>
+          <td>
+            <a href="{% url 'download' file.id %}"><i class="fas fa-cloud-download-alt"></i> Download</a>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% else %}
+  <p>No files received yet.</p>
+{% endif %}
