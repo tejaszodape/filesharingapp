@@ -14,7 +14,7 @@ from pathlib import Path
 from django.contrib.messages import constants as messages
 import os
 
-CSRF_TRUSTED_ORIGINS=[""]
+CSRF_TRUSTED_ORIGINS=["https://filesharingapp-fepi.onrender.com/register/"]
 MESSAGE_TAGS = {
     messages.DEBUG: 'alert-info',  # Custom class for debug messages
     messages.INFO: 'alert-info',    # Bootstrap info color
