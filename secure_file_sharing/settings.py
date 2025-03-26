@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from pathlib import Path
 from django.contrib.messages import constants as messages
 import os
+
+CSRF_TRUSTED_ORIGINS=[""]
 MESSAGE_TAGS = {
     messages.DEBUG: 'alert-info',  # Custom class for debug messages
     messages.INFO: 'alert-info',    # Bootstrap info color
@@ -37,7 +39,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-jv@rm$v5@&v6123p4i72z(tfu8x@f4hu^495%rtfuja+26a$50'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
