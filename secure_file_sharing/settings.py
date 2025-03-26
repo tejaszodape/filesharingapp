@@ -39,7 +39,7 @@ SECRET_KEY = 'django-insecure-jv@rm$v5@&v6123p4i72z(tfu8x@f4hu^495%rtfuja+26a$50
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ['filesharingapp-production-dfd4.up.railway.app', '127.0.0.1', 'localhost']
 
 
 # Application definition
