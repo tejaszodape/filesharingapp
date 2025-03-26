@@ -42,6 +42,7 @@ DEBUG = True
 ALLOWED_HOSTS = ['filesharingapp-production-dfd4.up.railway.app', '127.0.0.1', 'localhost']
 
 
+
 # Application definition
 
 INSTALLED_APPS = [
