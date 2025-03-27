@@ -14,7 +14,10 @@ from pathlib import Path
 from django.contrib.messages import constants as messages
 import os
 
-CSRF_TRUSTED_ORIGINS=["https://filesharingapp-fepi.onrender.com/register/"]
+CSRF_TRUSTED_ORIGINS = [
+    "https://filesharingapp-fepi.onrender.com"
+]
+
 MESSAGE_TAGS = {
     messages.DEBUG: 'alert-info',  # Custom class for debug messages
     messages.INFO: 'alert-info',    # Bootstrap info color
@@ -41,7 +44,8 @@ SECRET_KEY = 'django-insecure-jv@rm$v5@&v6123p4i72z(tfu8x@f4hu^495%rtfuja+26a$50
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ["filesharingapp-fepi.onrender.com", "127.0.0.1", "localhost"]
+
 
 
 
