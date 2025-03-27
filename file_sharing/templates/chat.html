@@ -429,7 +429,9 @@
     scrollToBottom();
 
     const roomName = JSON.parse(document.getElementById("room_slug").textContent);
-    const chatSocket = new WebSocket("ws://" + window.location.host + "/ws/chat/{{ room_name }}/");
+    const chatSocket = new WebSocket(
+    (window.location.protocol === "https:" ? "wss://" : "ws://") + window.location.host + "/ws/chat/" + roomName + "/"
+);
 
     chatSocket.onopen = function (e) {
       console.log("The connection was set up successfully!");
