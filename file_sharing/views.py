@@ -55,6 +55,7 @@ def register(request):
                   ecdsa_private_key=ecdsa_private_bytes,
                   ecdsa_public_key=ecdsa_public_bytes
                   )
+            user.save() 
             login(request, user)
             return redirect('login')
     return render(request, 'register.html')

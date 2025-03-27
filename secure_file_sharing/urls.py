@@ -21,3 +21,9 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('file_sharing.urls')),
 ]
+
+from django.conf import settings
+from django.conf.urls.static import static
+# Add this at the bottom
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
