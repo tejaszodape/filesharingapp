@@ -15,7 +15,10 @@
           <td>{{ file.original_filename }}</td>
           <td>{{ file.created_at|date:"Y-m-d H:i" }}</td>
           <td>
-            <a href="{% url 'download' file.id %}"><i class="fas fa-cloud-download-alt"></i> Download</a>
+            <a href="{% url 'download_encrypted_file' file.id %}">
+              <i class="fas fa-cloud-download-alt"></i> Download
+            </a>
+            
           </td>
         </tr>
       {% endfor %}

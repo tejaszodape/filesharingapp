@@ -171,3 +171,4 @@ EMAIL_HOST_USER = 'securechat00@gmail.com'
 EMAIL_HOST_PASSWORD = 'rzgk pein hiol oxvc'
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'

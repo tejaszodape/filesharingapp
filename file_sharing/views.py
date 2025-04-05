@@ -62,31 +62,6 @@ def register(request):
     return render(request, 'register.html')
 
 # views.py
-from django.contrib.auth import login, authenticate
-def user_login(request):
-    if request.method == 'POST':
-        username = request.POST.get('username')
-        request.session['username'] = username
-        password = request.POST.get('password')
-        user = authenticate(request, username=username, password=password)
-        if user:
-           otp = generate_otp()
-           cache.set(f"otp_{user.id}", otp, timeout=300)  # Store OTP for 5 minutes
-
-            # Send OTP via email
-           send_otp_email(user.email, otp)
-
-            # Store user ID in session temporarily
-           request.session["temp_user_id"] = user.id
-
-           return redirect("verify_otp")  # Redirect to OTP verification page
-        else:
-            messages.error(request, "Invalid username or password.")
-           
-    return render(request, 'login.html')
-
-
-# views.py
 import os, json, base64
 from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
@@ -363,18 +338,21 @@ def verify_otp(request):
         entered_otp = request.POST.get("otp")
         stored_otp = request.session.get("otp")
         user_id = request.session.get("otp_user")
-
+    
+        
         if entered_otp == stored_otp and user_id:
             # Log in the user
             from django.contrib.auth.models import User
             user = User.objects.get(id=user_id)
             login(request, user)
+            request.session['username'] = user.username
 
             # Clear OTP from session
             del request.session["otp"]
             del request.session["otp_user"]
-
+            request.session["username"] = user.username
             return JsonResponse({"success": True, "message": "OTP verified. Logging in..."})
+           
         else:
             return JsonResponse({"success": False, "message": "Invalid OTP."})
 
@@ -442,15 +420,43 @@ def train_model():
         np.save(f, label_dict)
 
 
+# views.py
+from django.contrib.auth import login, authenticate
+def user_login(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        request.session['username'] = username
+        password = request.POST.get('password')
+        user = authenticate(request, username=username, password=password)
+        if user:
+           request.session['username'] = username  
+           otp = generate_otp()
+           cache.set(f"otp_{user.id}", otp, timeout=300)  # Store OTP for 5 minutes
+
+            # Send OTP via email
+           send_otp_email(user.email, otp)
+
+            # Store user ID in session temporarily
+           request.session["temp_user_id"] = user.id
+
+           return redirect("verify_otp")  # Redirect to OTP verification page
+        else:
+            messages.error(request, "Invalid username or password.")
+           
+    return render(request, 'login.html')
+
+
 
 def login_face_view(request):
     if request.method == 'POST':
         username = request.session.get('username')
+        print("DEBUG: Username from session:", username)
         image_data = request.POST['captured_image']
 
         if not username or not image_data:
-            return HttpResponse("Missing data")
-
+            return HttpResponse("Missing username")
+        if  not image_data:
+            return HttpResponse("Missing image")
         image_data = image_data.split(',')[1]
         image_bytes = base64.b64decode(image_data)
         image = Image.open(BytesIO(image_bytes)).convert('L')
