@@ -8,6 +8,12 @@ from.views import home_view
 from .views import verify_otp
 from .views import send_otp,verify_otp
 
+from .views import register_face_view,login_face_view
+
+
+
+
+
 urlpatterns = [
     path('home/',home_view,name='home'),
     path('', user_login, name="login"),
@@ -23,5 +29,8 @@ urlpatterns = [
     path("verify-otp/", verify_otp, name="verify_otp"),
     path("send-otp/", send_otp, name="send_otp"),
    
+     path('register-face/',register_face_view, name='register_face'),
+     path('login-face/', login_face_view, name='login_face'),
 
+   
 ]

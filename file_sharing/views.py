@@ -32,6 +32,7 @@ def register(request):
         email= request.POST.get('email')
         username = request.POST.get('username')
         password = request.POST.get('password')
+        request.session['username'] = username
         if username and password:
             user = User.objects.create_user(username=username, password=password,email=email)
             # Generate Kyber key pair
@@ -56,17 +57,18 @@ def register(request):
                   ecdsa_public_key=ecdsa_public_bytes
                   )
             user.save() 
-            login(request, user)
-            return redirect('login')
+            
+            return redirect('register_face')
     return render(request, 'register.html')
 
 # views.py
 from django.contrib.auth import login, authenticate
 def user_login(request):
     if request.method == 'POST':
-        email = request.POST.get('email')
+        username = request.POST.get('username')
+        request.session['username'] = username
         password = request.POST.get('password')
-        user = authenticate(request, email=email, password=password)
+        user = authenticate(request, username=username, password=password)
         if user:
            otp = generate_otp()
            cache.set(f"otp_{user.id}", otp, timeout=300)  # Store OTP for 5 minutes
@@ -377,3 +379,99 @@ def verify_otp(request):
             return JsonResponse({"success": False, "message": "Invalid OTP."})
 
     return JsonResponse({"success": False, "message": "Invalid request."})
+
+
+import cv2
+import os
+import numpy as np
+from django.shortcuts import render, redirect
+from django.http import HttpResponse
+from django.conf import settings
+
+DATASET_PATH = os.path.join(settings.BASE_DIR, 'dataset')
+MODEL_PATH = os.path.join(settings.BASE_DIR, 'trainer.yml')
+LABELS_PATH = os.path.join(settings.BASE_DIR, 'labels.npy')
+
+import base64
+from PIL import Image
+from io import BytesIO
+
+def register_face_view(request):
+    if request.method == 'POST':
+        username = request.session.get('username')
+        image_data = request.POST['captured_image']
+
+        if not username or not image_data:
+            return HttpResponse("Missing data")
+
+        user_folder = os.path.join(DATASET_PATH, username)
+        os.makedirs(user_folder, exist_ok=True)
+
+        image_data = image_data.split(',')[1]
+        image_bytes = base64.b64decode(image_data)
+        image = Image.open(BytesIO(image_bytes)).convert('L')
+        image.save(os.path.join(user_folder, '1.jpg'))
+
+        train_model()
+        return redirect('login')  # send back to login page
+
+    return render(request, 'face_register.html')
+
+
+def train_model():
+    recognizer = cv2.face.LBPHFaceRecognizer_create()
+    faces, labels = [], []
+    label_dict = {}
+    label_id = 0
+
+    for user in os.listdir(DATASET_PATH):
+        user_path = os.path.join(DATASET_PATH, user)
+        if not os.path.isdir(user_path): continue
+        if user not in label_dict:
+            label_dict[user] = label_id
+            label_id += 1
+        for image in os.listdir(user_path):
+            img_path = os.path.join(user_path, image)
+            img = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
+            faces.append(img)
+            labels.append(label_dict[user])
+
+    recognizer.train(faces, np.array(labels))
+    recognizer.save(MODEL_PATH)
+    with open(LABELS_PATH, 'wb') as f:
+        np.save(f, label_dict)
+
+
+
+def login_face_view(request):
+    if request.method == 'POST':
+        username = request.session.get('username')
+        image_data = request.POST['captured_image']
+
+        if not username or not image_data:
+            return HttpResponse("Missing data")
+
+        image_data = image_data.split(',')[1]
+        image_bytes = base64.b64decode(image_data)
+        image = Image.open(BytesIO(image_bytes)).convert('L')
+        image_np = np.array(image)
+
+        recognizer = cv2.face.LBPHFaceRecognizer_create()
+        recognizer.read(MODEL_PATH)
+        with open(LABELS_PATH, 'rb') as f:
+            label_dict = np.load(f, allow_pickle=True).item()
+
+        if username not in label_dict:
+            return HttpResponse("User not registered")
+
+        label, confidence = recognizer.predict(image_np)
+        predicted_user = list(label_dict.keys())[list(label_dict.values()).index(label)]
+
+        if predicted_user == username and confidence < 70:
+            return redirect('home')
+        else:
+            return HttpResponse("Face not recognized")
+
+    return render(request, 'face_login.html')
+
+

@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Register Face</title>
+  <style>
+    /* General Styles */
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #7b99d1, #2983ea);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+      color: #fff;
+    }
+
+    /* Background Animation */
+    body::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 10%, transparent 10.01%);
+      background-size: 20px 20px;
+      animation: move-background 5s linear infinite;
+      z-index: -1;
+    }
+
+    @keyframes move-background {
+      0% { transform: translate(0, 0); }
+      100% { transform: translate(-10px, -10px); }
+    }
+
+    /* Card Container */
+    .card-container {
+      background: rgba(255, 255, 255, 0.9);
+      padding: 30px 40px;
+      border-radius: 20px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+      text-align: center;
+      animation: bounceIn 1s ease-out;
+      backdrop-filter: blur(10px);
+      position: relative;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      font-size: 28px;
+      color: #333;
+    }
+
+    /* Camera Container */
+    .camera-container {
+      position: relative;
+      width: 480px;
+      height: 360px;
+      margin: 0 auto;
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+      margin-bottom: 20px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      animation: fadeIn 1s ease-in;
+    }
+
+    video, canvas {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      position: absolute;
+      top: 0;
+      left: 0;
+      border-radius: 15px;
+    }
+
+    /* Button Container */
+    .button-container {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    /* Buttons */
+    button {
+      margin: 0;
+      padding: 12px 25px;
+      font-size: 16px;
+      border: none;
+      border-radius: 30px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    }
+
+    button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.3);
+      transition: left 0.5s ease;
+      z-index: -1;
+    }
+
+    button:hover::before {
+      left: 0;
+    }
+
+    button:active {
+      transform: scale(0.95);
+    }
+
+    #capture-btn {
+      background-color: #4caf50;
+      color: white;
+    }
+
+    #retake-btn {
+      background-color: #f44336;
+      color: white;
+    }
+
+    button[type="submit"] {
+      background-color: #2196f3;
+      color: white;
+    }
+
+    /* Alert Box */
+    .alert {
+      display: none;
+      background-color: #ff5722;
+      color: white;
+      padding: 12px;
+      border-radius: 10px;
+      margin-top: 15px;
+      animation: fadeIn 0.6s ease-in;
+    }
+
+    /* Animations */
+    @keyframes bounceIn {
+      0% {
+        transform: scale(0.7);
+        opacity: 0;
+      }
+      60% {
+        transform: scale(1.05);
+        opacity: 1;
+      }
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card-container">
+    <h2>Register Your Face</h2>
+
+    <div class="camera-container">
+      <video id="video" autoplay></video>
+      <canvas id="canvas" style="display:none;"></canvas>
+    </div>
+
+    <form method="POST" enctype="multipart/form-data" onsubmit="return validateCapture();">
+      {% csrf_token %}
+      <input type="hidden" name="captured_image" id="captured_image">
+
+      <div class="button-container">
+        <button type="button" id="capture-btn">📸 Capture</button>
+        <button type="button" id="retake-btn" style="display:none;">🔄 Retake</button>
+        <button type="submit">✅ Register</button>
+      </div>
+
+      <div class="alert" id="alert-box">⚠️ Please capture your face before registering!</div>
+    </form>
+  </div>
+
+  <script>
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const captureBtn = document.getElementById('capture-btn');
+    const retakeBtn = document.getElementById('retake-btn');
+    const capturedInput = document.getElementById('captured_image');
+    const alertBox = document.getElementById('alert-box');
+
+    // Get access to the camera
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then(stream => {
+        video.srcObject = stream;
+      })
+      .catch(err => {
+        alert("Could not access the camera. Please allow webcam access.");
+      });
+
+    // Set canvas dimensions to match video aspect ratio
+    video.addEventListener('loadedmetadata', () => {
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+    });
+
+    captureBtn.onclick = () => {
+      const context = canvas.getContext('2d');
+      // Draw the video frame onto the canvas
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      canvas.style.display = 'block';
+      video.style.display = 'none';
+      captureBtn.style.display = 'none';
+      retakeBtn.style.display = 'inline';
+
+      // Convert canvas image to a data URL and store it in the hidden input
+      capturedInput.value = canvas.toDataURL('image/jpeg');
+      alertBox.style.display = 'none';
+    };
+
+    retakeBtn.onclick = () => {
+      video.style.display = 'block';
+      canvas.style.display = 'none';
+      captureBtn.style.display = 'inline';
+      retakeBtn.style.display = 'none';
+      capturedInput.value = '';
+    };
+
+    function validateCapture() {
+      if (capturedInput.value === '') {
+        alertBox.style.display = 'block';
+        return false;
+      }
+      return true;
+    }
+  </script>
+
+</body>
+</html>
