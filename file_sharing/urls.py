@@ -9,7 +9,7 @@ from .views import verify_otp
 from .views import send_otp,verify_otp
 
 from .views import register_face_view,login_face_view
-
+from .views import refresh_files
 
 
 

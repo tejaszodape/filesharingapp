@@ -186,16 +186,6 @@ def user_logout(request):
 from django.template.loader import render_to_string
 from django.http import JsonResponse
 
-@login_required
-def refresh_files(request):
-    shared_files = SharedFile.objects.filter(receiver=request.user).order_by('-created_at')
-    sent_files = SharedFile.objects.filter(sender=request.user).order_by('-created_at')
-    received_html = render_to_string('partials/received_files.html', {'shared_files': shared_files})
-    sent_html = render_to_string('partials/sent_files.html', {'sent_files': sent_files})
-    return JsonResponse({
-        'received_files_html': received_html,
-        'sent_files_html': sent_html
-    })
 
 
 from django.contrib.auth import logout
@@ -480,4 +470,15 @@ def login_face_view(request):
 
     return render(request, 'face_login.html')
 
+
+@login_required
+def refresh_files(request):
+    shared_files = SharedFile.objects.filter(receiver=request.user).order_by('-created_at')
+    sent_files = SharedFile.objects.filter(sender=request.user).order_by('-created_at')
+    received_html = render_to_string('partials/received_files.html', {'shared_files': shared_files})
+    sent_html = render_to_string('partials/sent_files.html', {'sent_files': sent_files})
+    return JsonResponse({
+        'received_files_html': received_html,
+        'sent_files_html': sent_html
+    })
 
