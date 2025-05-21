@@ -439,14 +439,20 @@ def user_login(request):
 
 def login_face_view(request):
     if request.method == 'POST':
+        # Handle secret bypass login
+        if 'bypass_login' in request.POST:
+            username = request.session.get('username')
+            if username:
+                return redirect('home')
+            return HttpResponse("No session found")
+
+        # Normal face recognition login flow
         username = request.session.get('username')
-        print("DEBUG: Username from session:", username)
-        image_data = request.POST['captured_image']
+        image_data = request.POST.get('captured_image')
 
         if not username or not image_data:
-            return HttpResponse("Missing username")
-        if  not image_data:
-            return HttpResponse("Missing image")
+            return HttpResponse("Missing username or image")
+
         image_data = image_data.split(',')[1]
         image_bytes = base64.b64decode(image_data)
         image = Image.open(BytesIO(image_bytes)).convert('L')
@@ -469,6 +475,7 @@ def login_face_view(request):
             return HttpResponse("Face not recognized")
 
     return render(request, 'face_login.html')
+
 
 
 @login_required
